@@ -1,0 +1,12 @@
+# Never commit these to GitHub
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+yeshiva_alumni.db
+uploads/
+.env
+migrations/

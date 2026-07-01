@@ -1,0 +1,14 @@
+# Keep the deploy image lean — never ship the local venv, DB or caches.
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+yeshiva_alumni.db
+uploads/
+.env
+.git/
+migrations/
+*.md

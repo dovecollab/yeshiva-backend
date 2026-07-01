@@ -40,8 +40,14 @@ async def get_current_user(
     try:
         token = credentials.credentials
         payload = jwt.decode(token, settings.effective_secret_key, algorithms=[settings.ALGORITHM])
-        user_id: int = payload.get("sub")
-        if user_id is None:
+        raw_sub = payload.get("sub")
+        if raw_sub is None:
+            raise credentials_exception
+        # The JWT stores the id as a string. Postgres (unlike SQLite) will not
+        # compare an integer column to a string param, so cast it to int here.
+        try:
+            user_id = int(raw_sub)
+        except (TypeError, ValueError):
             raise credentials_exception
     except JWTError:
         raise credentials_exception

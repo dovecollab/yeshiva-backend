@@ -71,7 +71,7 @@ async def get_alumni_list(
     col = getattr(Alumni, sort_by, Alumni.last_name)
     items = (await db.execute(
         select(Alumni)
-        .options(selectinload(Alumni.cycle))
+        .options(selectinload(Alumni.cycle), selectinload(Alumni.documents))
         .order_by(col.desc() if sort_desc else col)
         .offset((page - 1) * page_size)
         .limit(page_size)
@@ -141,7 +141,7 @@ async def advanced_search(db: AsyncSession, request: AdvancedSearchRequest) -> D
     sort_col = getattr(Alumni, request.sort_by, Alumni.last_name)
     items = (await db.execute(
         select(Alumni)
-        .options(selectinload(Alumni.cycle))
+        .options(selectinload(Alumni.cycle), selectinload(Alumni.documents))
         .where(where_clause)
         .order_by(sort_col.desc() if request.sort_desc else sort_col)
         .offset((request.page - 1) * request.page_size)

@@ -166,8 +166,7 @@ async def create_alumni(db: AsyncSession, data: AlumniCreate, user_id: int, user
     alumni.completeness_score = _calculate_completeness(alumni)
     _log_change(db, alumni.id, "CREATE", alumni_data, user_id, user_name)
     await db.commit()
-    await db.refresh(alumni)
-    return alumni
+    return await get_alumni(db, alumni.id)
 
 
 async def update_alumni(
@@ -194,8 +193,7 @@ async def update_alumni(
     if changed_fields:
         _log_change(db, alumni_id, "UPDATE", changed_fields, user_id, user_name)
     await db.commit()
-    await db.refresh(alumni)
-    return alumni
+    return await get_alumni(db, alumni_id)
 
 
 async def delete_alumni(db: AsyncSession, alumni_id: int, user_id: int, user_name: str) -> bool:

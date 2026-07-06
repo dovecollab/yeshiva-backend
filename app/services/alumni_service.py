@@ -71,7 +71,7 @@ async def get_alumni_list(
     col = getattr(Alumni, sort_by, Alumni.last_name)
     items = (await db.execute(
         select(Alumni)
-        .options(selectinload(Alumni.cycle), selectinload(Alumni.documents))
+        .options(selectinload(Alumni.cycle))
         .order_by(col.desc() if sort_desc else col)
         .offset((page - 1) * page_size)
         .limit(page_size)
@@ -141,7 +141,7 @@ async def advanced_search(db: AsyncSession, request: AdvancedSearchRequest) -> D
     sort_col = getattr(Alumni, request.sort_by, Alumni.last_name)
     items = (await db.execute(
         select(Alumni)
-        .options(selectinload(Alumni.cycle), selectinload(Alumni.documents))
+        .options(selectinload(Alumni.cycle))
         .where(where_clause)
         .order_by(sort_col.desc() if request.sort_desc else sort_col)
         .offset((request.page - 1) * request.page_size)
@@ -239,14 +239,26 @@ def alumni_to_dicts(alumni_list) -> List[Dict]:
 
 async def get_missing_data_report(db: AsyncSession) -> Dict:
     fields = ["phone", "address", "email", "id_number", "city", "photo_path"]
-    report = {}
+    
+    from sqlalchemy import case
+    
+    aggs = [
+        func.count(Alumni.id).label("total")
+    ]
     for field in fields:
         col = getattr(Alumni, field)
-        count = (await db.execute(
-            select(func.count()).select_from(Alumni).where(or_(col == None, col == ""))
-        )).scalar()
-        report[field] = count
-    report["total"] = (await db.execute(select(func.count(Alumni.id)))).scalar()
+        aggs.append(
+            func.sum(case((or_(col == None, col == ""), 1), else_=0)).label(field)
+        )
+        
+    result = (await db.execute(select(*aggs))).fetchone()
+    
+    report = {
+        "total": result.total
+    }
+    for field in fields:
+        report[field] = getattr(result, field) or 0
+        
     return report
 
 

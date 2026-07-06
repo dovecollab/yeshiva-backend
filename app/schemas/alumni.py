@@ -75,11 +75,13 @@ class AlumniResponse(AlumniBase):
     completeness_score: float = 0.0
     created_at: datetime
     updated_at: Optional[datetime] = None
-    documents: List[DocumentResponse] = []
     cycle_name: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+class AlumniDetailedResponse(AlumniResponse):
+    documents: List[DocumentResponse] = []
 
 
 class AlumniListResponse(BaseModel):

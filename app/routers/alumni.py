@@ -9,7 +9,7 @@ from ..database import get_db
 from ..models.user import User
 from ..models.alumni import Alumni
 from ..schemas.alumni import (
-    AlumniCreate, AlumniUpdate, AlumniResponse, AlumniListResponse, AdvancedSearchRequest
+    AlumniCreate, AlumniUpdate, AlumniResponse, AlumniDetailedResponse, AlumniListResponse, AdvancedSearchRequest
 )
 from ..services import alumni_service, import_export_service
 from ..utils.auth import get_current_user, require_can_create, require_can_edit, require_can_delete
@@ -130,7 +130,7 @@ async def download_sample_excel(current_user: User = Depends(get_current_user)):
     )
 
 
-@router.get("/{alumni_id}", response_model=AlumniResponse)
+@router.get("/{alumni_id}", response_model=AlumniDetailedResponse)
 async def get_alumni(
     alumni_id: int,
     db: AsyncSession = Depends(get_db),
@@ -142,7 +142,7 @@ async def get_alumni(
     return alumni
 
 
-@router.post("", response_model=AlumniResponse, status_code=201)
+@router.post("", response_model=AlumniDetailedResponse, status_code=201)
 async def create_alumni(
     data: AlumniCreate,
     db: AsyncSession = Depends(get_db),
@@ -153,7 +153,7 @@ async def create_alumni(
     )
 
 
-@router.put("/{alumni_id}", response_model=AlumniResponse)
+@router.put("/{alumni_id}", response_model=AlumniDetailedResponse)
 async def update_alumni(
     alumni_id: int,
     data: AlumniUpdate,
